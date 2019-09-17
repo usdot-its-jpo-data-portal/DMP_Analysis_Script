@@ -194,7 +194,7 @@ class DDEval:
 
         return dic_summary
 
-    def _save_report(self, data, separator='\t'):
+    def _save_report(self, data, num_files, separator='\t'):
 
         target_filename = None
         if self._params.output is not None:
@@ -228,6 +228,7 @@ class DDEval:
             if type(data) is dict:
                 if target_filename is not None:
                     with open(target_filename, 'w') as file:
+                        file.write('{}{}{}\n'.format('Number of files: ', separator, num_files))
                         for key in data:
                             vals = data[key]
                             rep_line = key
@@ -236,6 +237,7 @@ class DDEval:
                             file.write('{}\n'.format(rep_line))
                     print('Report saved at: {}'.format(target_filename))
                 else:
+                    print('{}{}{}\n'.format('Number of files: ', separator, num_files))
                     for key in data:
                         vals = data[key]
                         rep_line = key
@@ -289,9 +291,9 @@ class DDEval:
                         lines.append(line)
 
         if self._params.detailed:
-            return lines
+            return lines, len(files)
         else:
-            return dic_summary
+            return dic_summary, len(files)
 
     def parse(self):
         if self._params is None:
@@ -299,12 +301,12 @@ class DDEval:
             exit(1)
 
         if self._params.is_directory:
-            result = self._process_directory()
-            self._save_report(result)
+            result, num_files = self._process_directory()
+            self._save_report(result, num_files)
 
         else:
             result = self._process_file(self._params.path_name)
-            self._save_report(result)
+            self._save_report(result, 1)
 
 
 
