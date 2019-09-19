@@ -44,6 +44,7 @@ class DDEval:
         table_counter = 0
         for table in doc.tables:
             table_counter += 1
+            has_check_boxes = False
 
             dde_table = DDETable()
             dde_table.index = table_counter
@@ -94,12 +95,14 @@ class DDEval:
                         dde_cell.value = val
 
                         dde_row.add_cell(dde_cell)
+                        has_check_boxes = True
                         # print('[{:d},{:d}] <{:s}>'.format(dde_cell.row_index, dde_cell.column_index, dde_cell.value))
 
                 dde_table.add_row(dde_row)
 
-            dde_table.name = dde_table.row(0).cell(1).value
-            tables.append(dde_table)
+            if has_check_boxes:
+                dde_table.name = dde_table.row(0).cell(1).value
+                tables.append(dde_table)
 
         return tables
 
@@ -118,7 +121,7 @@ class DDEval:
 
                 dde_text = DDEText()
                 dde_text.text = txt
-                dde_text.value = val if len(val) > 1 else '1' if ord(val) == 9746 else '0' if ord(val) == 9744 else val
+                dde_text.value = val if len(val) > 1 else '1' if len(val) == 1 and ord(val) == 9746 else '0' if len(val) == 1 and ord(val) == 9744 else val
 
                 dde_text.resolve_id()
 
@@ -185,12 +188,15 @@ class DDEval:
                     vals = dic_summary[val]
 
                 i = 1
+                has_check_boxes = False
                 for c in row.cells:
                     if c.cell_type == 'checkbox':
+                        has_check_boxes = True
                         vals[i] = vals[i] + int(c.value)
                         i += 1
 
-                dic_summary[val] = vals
+                if has_check_boxes:
+                    dic_summary[val] = vals
 
         return dic_summary
 
